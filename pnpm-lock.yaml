@@ -15,8 +15,8 @@ importers:
         specifier: ^3.0.41
         version: 3.0.70(react@19.2.4)(zod@4.3.6)
       '@ai-tui/core':
-        specifier: ^0.1.0
-        version: 0.1.0(@ai-sdk/react@3.0.70(react@19.2.4)(zod@4.3.6))(@opentui/core@0.1.77(stage-js@1.0.0-alpha.17)(typescript@5.9.3)(web-tree-sitter@0.25.10))(@opentui/react@0.1.77(react-devtools-core@7.0.1)(react@19.2.4)(stage-js@1.0.0-alpha.17)(typescript@5.9.3)(web-tree-sitter@0.25.10)(ws@8.19.0))(ai@6.0.68(zod@4.3.6))(react@19.2.4)(typescript@5.9.3)
+        specifier: ^0.1.1
+        version: 0.1.1(@ai-sdk/react@3.0.70(react@19.2.4)(zod@4.3.6))(@opentui/core@0.1.77(stage-js@1.0.0-alpha.17)(typescript@5.9.3)(web-tree-sitter@0.25.10))(@opentui/react@0.1.77(react-devtools-core@7.0.1)(react@19.2.4)(stage-js@1.0.0-alpha.17)(typescript@5.9.3)(web-tree-sitter@0.25.10)(ws@8.19.0))(ai@6.0.68(zod@4.3.6))(react@19.2.4)(typescript@5.9.3)
       '@opentui/core':
         specifier: ^0.1.72
         version: 0.1.77(stage-js@1.0.0-alpha.17)(typescript@5.9.3)(web-tree-sitter@0.25.10)
@@ -79,8 +79,8 @@ packages:
     peerDependencies:
       react: ^18 || ~19.0.1 || ~19.1.2 || ^19.2.1
 
-  '@ai-tui/core@0.1.0':
-    resolution: {integrity: sha512-HBSTyppEmFRfOfVZJnrRZ8/kxASF/IG5IZDHSBK6R5GItV3w2xLjWC6Pt/RIhFJBaj2A9+xfceVOOoI2VAYLFQ==}
+  '@ai-tui/core@0.1.1':
+    resolution: {integrity: sha512-XhUhLVs56JVF3v3DE6vlzUNcemmbz6oDGAW7J0jEdUlVRSXRrhKQKQid9Y8Tp5IJSFWvvD/3GYGQrJu/EPpdrg==}
     engines: {node: '>=20'}
     peerDependencies:
       '@ai-sdk/react': '>=3.0.0'
@@ -1042,7 +1042,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  '@ai-tui/core@0.1.0(@ai-sdk/react@3.0.70(react@19.2.4)(zod@4.3.6))(@opentui/core@0.1.77(stage-js@1.0.0-alpha.17)(typescript@5.9.3)(web-tree-sitter@0.25.10))(@opentui/react@0.1.77(react-devtools-core@7.0.1)(react@19.2.4)(stage-js@1.0.0-alpha.17)(typescript@5.9.3)(web-tree-sitter@0.25.10)(ws@8.19.0))(ai@6.0.68(zod@4.3.6))(react@19.2.4)(typescript@5.9.3)':
+  '@ai-tui/core@0.1.1(@ai-sdk/react@3.0.70(react@19.2.4)(zod@4.3.6))(@opentui/core@0.1.77(stage-js@1.0.0-alpha.17)(typescript@5.9.3)(web-tree-sitter@0.25.10))(@opentui/react@0.1.77(react-devtools-core@7.0.1)(react@19.2.4)(stage-js@1.0.0-alpha.17)(typescript@5.9.3)(web-tree-sitter@0.25.10)(ws@8.19.0))(ai@6.0.68(zod@4.3.6))(react@19.2.4)(typescript@5.9.3)':
     dependencies:
       '@ai-sdk/react': 3.0.70(react@19.2.4)(zod@4.3.6)
       '@opentui/core': 0.1.77(stage-js@1.0.0-alpha.17)(typescript@5.9.3)(web-tree-sitter@0.25.10)

@@ -7,10 +7,12 @@
 	},
 	"scripts": {
 		"cli": "bun run --watch src/index.tsx",
-		"check-types": "tsc --noEmit"
+		"build": "pnpm clean && bun build --compile src/index.tsx --outfile ./build/ark-agent-cli && cp .env ./build/.env",
+		"check-types": "tsc --noEmit",
+		"clean": "rm -rf build"
 	},
 	"dependencies": {
-		"@ai-tui/core": "^0.1.0",
+		"@ai-tui/core": "^0.1.1",
 		"@ai-sdk/anthropic": "^3.0.17",
 		"@ai-sdk/react": "^3.0.41",
 		"@opentui/core": "^0.1.72",
