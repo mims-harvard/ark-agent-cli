@@ -1,0 +1,29 @@
+{
+  "name": "ark-agent-cli",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#*": "./src/*"
+  },
+  "scripts": {
+    "cli": "bun run --watch src/index.tsx",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-tui/core": "workspace:*",
+    "@ai-sdk/anthropic": "^3.0.17",
+    "@ai-sdk/react": "^3.0.41",
+    "@opentui/core": "^0.1.72",
+    "@opentui/react": "^0.1.72",
+    "@t3-oss/env-core": "^0.13.1",
+    "ai": "^6.0.42",
+    "drizzle-orm": "^0.45.1",
+    "postgres": "^3.4.8",
+    "react": "^19.2.3",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.6",
+    "@types/react": "^19"
+  }
+}
