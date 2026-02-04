@@ -70,7 +70,23 @@ ARK Agent CLI provides a conversational interface to explore biomedical knowledg
    POSTGRES_URL=postgresql://user:password@host:port/database
    ```
 
-4. **Run the application**:
+4. **Set up the database**:
+
+   Download and restore the knowledge graph data:
+
+   ```bash
+   # Download the database dump from Google Drive (~7.2GB)
+   curl -L -o db-dump.sql "https://drive.usercontent.google.com/download?id=1BWxAFa11hODWTl5pk_2KUGMnhBP1Kiu_&export=download&confirm=t"
+   
+   # Alternatively, download manually from:
+   # https://drive.google.com/file/d/1BWxAFa11hODWTl5pk_2KUGMnhBP1Kiu_/view?usp=sharing
+   
+   pg_restore -d postgres -C db-dump.sql
+   ```
+
+   This creates the database and restores the data. Update your `POSTGRES_URL` in `.env` to match the database name from the dump.
+
+5. **Run the application**:
 
    ```bash
    pnpm cli
