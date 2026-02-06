@@ -68,6 +68,7 @@ ARK Agent CLI provides a conversational interface to explore biomedical knowledg
    ```env
    ANTHROPIC_API_KEY=your_anthropic_api_key
    POSTGRES_URL=postgresql://user:password@host:port/database
+   # If you run postgres locally you might not need a password
    ```
 
 4. **Set up the database**:
@@ -81,16 +82,20 @@ ARK Agent CLI provides a conversational interface to explore biomedical knowledg
    # Alternatively, download manually from:
    # https://drive.google.com/file/d/1BWxAFa11hODWTl5pk_2KUGMnhBP1Kiu_/view?usp=sharing
    
-   pg_restore -d postgres -C db-dump.sql
+   psql -d postgres -f db-dump.sql
    ```
 
-   This creates the database and restores the data. Update your `POSTGRES_URL` in `.env` to match the database name from the dump.
+   This creates the database and restores the data. Make sure the database name in your `POSTGRES_URL` (the part after the last `/`) matches the database you restored into. For example, if you used `psql -d postgres`, your `POSTGRES_URL` should end with `/postgres`.
+
+
+   Supabase-specific roles, extensions, and permissions included in the dump may fail to apply in a local PostgreSQL setup.
+   These errors can be safely ignored and **do not affect ARK Agent CLI functionality**.
 
 5. **Run the application**:
 
-   ```bash
-   pnpm cli
-   ```
+```bash
+pnpm cli
+```
 
 ## Usage
 
