@@ -67,11 +67,9 @@ ARK Agent CLI provides a conversational interface to explore biomedical knowledg
 
    ```env
    ANTHROPIC_API_KEY=your_anthropic_api_key
-   POSTGRES_URL=postgresql://user@host:port/database
-   # Or with password: postgresql://user:password@host:port/database
+   POSTGRES_URL=postgresql://user:password@host:port/database
+   # If you run postgres locally you might not need a password
    ```
-
-   **Note:** A database password is **optional**. Local PostgreSQL installations often use peer or trust authentication.
 
 4. **Set up the database**:
 
@@ -83,11 +81,7 @@ ARK Agent CLI provides a conversational interface to explore biomedical knowledg
    
    # Alternatively, download manually from:
    # https://drive.google.com/file/d/1BWxAFa11hODWTl5pk_2KUGMnhBP1Kiu_/view?usp=sharing
-   ```
-
-   The provided dump is a **plain SQL file**. Restore it using `psql`:
-
-   ```bash
+   
    psql -d postgres -f db-dump.sql
    ```
 
