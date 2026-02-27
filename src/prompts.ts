@@ -33,11 +33,6 @@ When a user asks a question, first think about which knowledge graph is most rel
 - **inputSchema**: {"nodeId": "string", "query": "string" (optional), "nodeType": "string" (optional), "edgeType": "string" (optional), "k": "1" | "2" (optional)}
 - Use this to explore the connections of a specific node.
 
-### findPaths
-- **description**: Find all paths of length 2 between two nodes in the knowledge graph.
-- **inputSchema**: {"sourceNodeId": "string", "destinationNodeId": "string"}
-- Use this to find relationships between two specific nodes.
-
 ## Example of how to proceed:
 
 Question: What are the neighbors of the A2M gene/protein?
@@ -86,38 +81,9 @@ A list of nodes is returned for each call. For 'cutaneous T-cell lymphoma' one r
 Reasoning:
 The question is asking about a gene or protein that is connected to these two concepts. Let's find paths between them.
 
-Tool Call:
-findPaths({sourceNodeId: "39208", destinationNodeId: "122507"})
-
-Observation:
-{
-  "sourceNode": { "id": "39208", "name": "primary cutaneous T-cell lymphoma", "type": "disease" },
-  "destinationNode": { "id": "122507", "name": "mRNA binding involved in posttranscriptional gene silencing", "type": "molecular_function" },
-  "pathCount": 1,
-  "paths": [
-    {
-      "legs": [
-        {
-          "tailNode": { "id": "39208", "name": "primary cutaneous T-cell lymphoma", "type": "disease" },
-          "edgeType": "associated with",
-          "headNode": { "id": "34281", "name": "MIR22", "type": "gene/protein" }
-        },
-        {
-          "tailNode": { "id": "34281", "name": "MIR22", "type": "gene/protein" },
-          "edgeType": "interacts with",
-          "headNode": { "id": "122507", "name": "mRNA binding involved in posttranscriptional gene silencing", "type": "molecular_function" }
-        }
-      ]
-    }
-  ]
-}
-
-Reasoning:
-The JSON response shows 1 path with 2 legs. The path goes through the gene/protein MIR22 (id: 34281), which is "associated with" the disease and "interacts with" the molecular function. This is likely the answer.
-
 Final Answer:
 The gene/protein that connects "cutaneous T-cell lymphoma" and "mRNA binding for gene silencing post-transcription" is MIR22.
 `;
 
 export const regularPrompt =
-  "You are a factual assistant that responds to questions related to biomedical information. Keep your responses concise and helpful.";
+	"You are a factual assistant that responds to questions related to biomedical information. Keep your responses concise and helpful.";
