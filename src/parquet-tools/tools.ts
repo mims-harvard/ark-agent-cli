@@ -279,8 +279,10 @@ export const makeFindNodesByNameTool = (
 export const makeGetNodeDetailsTool = (
 	knowledgeGraphIds: number[],
 	queries: Queries,
-) =>
-	tool({
+	graphsMeta: KnowledgeGraphMeta[],
+) => {
+	const nameMap = new Map(graphsMeta.map((g) => [g.id, g.name]));
+	return tool({
 		description: "Get the details of a specific node by its ID.",
 		inputSchema: z.object({
 			nodeId: z.string().describe("The ID of the node to get details for."),
@@ -292,10 +294,14 @@ export const makeGetNodeDetailsTool = (
 				name: node.name,
 				id: node.id,
 				knowledgeGraphId: node.knowledgeGraphId,
+				knowledgeGraphName:
+					nameMap.get(node.knowledgeGraphId) ??
+					`Graph #${node.knowledgeGraphId}`,
 				properties: node.properties,
 			}));
 		},
 	});
+};
 
 export const makeGetNeighborsByNodeIdTool = (
 	knowledgeGraphIds: number[],
@@ -355,10 +361,11 @@ export const makeGraphTools = (
 						knowledgeGraphIds,
 						queries,
 					),
-					getNodeDetails: makeGetNodeDetailsTool(
-						knowledgeGraphIds,
-						queries,
-					),
+				getNodeDetails: makeGetNodeDetailsTool(
+					knowledgeGraphIds,
+					queries,
+					graphsMeta,
+				),
 					getNeighborsByNodeId: makeGetNeighborsByNodeIdTool(
 						knowledgeGraphIds,
 						queries,

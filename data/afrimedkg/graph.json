@@ -1,5 +1,7 @@
 {
   "id": 2,
   "name": "AfriMedKG",
-  "description": "A knowledge graph constructed based on the multiple-choice questions of AfriMed-QA. AfriMed-QA is a pan-african, multi-specialty, medical question-answering nenchmark dataset."
+  "description": "A knowledge graph constructed based on the multiple-choice questions of AfriMed-QA. AfriMed-QA is a pan-african, multi-specialty, medical question-answering nenchmark dataset.",
+  "color": "#82aaff",
+  "order": 2
 }

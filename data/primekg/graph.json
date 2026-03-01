@@ -1,5 +1,7 @@
 {
   "id": 1,
   "name": "PrimeKG",
-  "description": "A precision medicine-oriented knowledge graph that provides a holistic view of diseases"
+  "description": "A precision medicine-oriented knowledge graph that provides a holistic view of diseases",
+  "color": "#fab283",
+  "order": 1
 }

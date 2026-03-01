@@ -16,16 +16,8 @@ type NodeDetail = {
   name: string | null;
   id: string;
   knowledgeGraphId: number;
+  knowledgeGraphName: string;
   properties: string | null;
-};
-
-/**
- * Knowledge graph ID to name mapping.
- */
-const KNOWLEDGE_GRAPHS: Record<number, string> = {
-  1: "PrimeKG",
-  2: "AfriMedKG",
-  3: "OptimusKG",
 };
 
 /**
@@ -85,13 +77,6 @@ function formatPropertyValue(value: unknown, maxLength = 50): string {
   }
 
   return String(value);
-}
-
-/**
- * Get knowledge graph name from ID.
- */
-function getKnowledgeGraphName(id: number): string {
-  return KNOWLEDGE_GRAPHS[id] ?? `Graph #${id}`;
 }
 
 /** Number of properties to show before collapsing */
@@ -193,7 +178,7 @@ export function GetNodeDetailsTool({
         <text fg={theme.textMuted}>
           Knowledge Graph:{" "}
           <span fg={theme.text}>
-            {getKnowledgeGraphName(node.knowledgeGraphId)}
+            {node.knowledgeGraphName}
           </span>
         </text>
       </box>

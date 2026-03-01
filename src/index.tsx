@@ -39,48 +39,36 @@ const graphToolComponents: ToolComponentsMap = {
 	getNodeDetails: GetNodeDetailsTool,
 };
 
-/**
- * Creates an agent for a specific knowledge graph.
- */
-const createGraphAgent = (
-	id: string,
-	name: string,
-	knowledgeGraphId: number,
-	color: HexColor,
-) =>
-	new Agent({
-		id,
-		name,
-		model: { providerName: "Anthropic", name: "Claude Opus 4.5" },
-		color,
-		toolComponents: graphToolComponents,
-		createTransport: async ({ transportOptions }) => {
-			const graphTools = (await makeParquetGraphTools(
-				[knowledgeGraphId],
-				loader,
-			)) as ToolSet;
-
-			const agent = new ToolLoopAgent({
-				model: anthropic("claude-opus-4-5"),
-				tools: graphTools,
-				instructions: `${regularPrompt}\n\n${graphAgentPrompt}`,
-				stopWhen: stepCountIs(50),
-			});
-
-			return new DirectChatTransport({
-				agent,
-				...transportOptions,
-			}) as ChatTransport<UIMessage>;
-		},
-	});
-
 const configValue: ConfigInput = {
 	id: "ark-agent-cli",
-	agents: [
-		createGraphAgent("primekg", "PrimeKG", 1, "#fab283"),
-		createGraphAgent("afrimedkg", "AfriMedKG", 2, "#82aaff"),
-		createGraphAgent("optimuskg", "OptimusKG", 3, "#c3e88d"),
-	] as ConfigInput["agents"],
+	agents: loader.graphsMeta.map(
+		(meta) =>
+			new Agent({
+				id: meta.slug,
+				name: meta.name,
+				model: { providerName: "Anthropic", name: "Claude Opus 4.5" },
+				color: meta.color as HexColor,
+				toolComponents: graphToolComponents,
+				createTransport: async ({ transportOptions }) => {
+					const graphTools = (await makeParquetGraphTools(
+						[meta.id],
+						loader,
+					)) as ToolSet;
+
+					const agent = new ToolLoopAgent({
+						model: anthropic("claude-opus-4-5"),
+						tools: graphTools,
+						instructions: `${regularPrompt}\n\n${graphAgentPrompt}`,
+						stopWhen: stepCountIs(50),
+					});
+
+					return new DirectChatTransport({
+						agent,
+						...transportOptions,
+					}) as ChatTransport<UIMessage>;
+				},
+			}),
+	) as ConfigInput["agents"],
 	appName: {
 		sections: [
 			{

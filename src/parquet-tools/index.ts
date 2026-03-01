@@ -9,10 +9,11 @@ import type { KnowledgeGraphMeta } from "./types.ts";
 
 export type { Edge, KnowledgeGraphMeta, Node } from "./types.ts";
 
-/** Load graph metadata from graph.json */
-function loadGraphMeta(filePath: string): KnowledgeGraphMeta {
+/** Load graph metadata from graph.json, injecting the directory slug. */
+function loadGraphMeta(filePath: string, slug: string): KnowledgeGraphMeta {
 	const content = readFileSync(filePath, "utf-8");
-	return JSON.parse(content) as KnowledgeGraphMeta;
+	const raw = JSON.parse(content) as Omit<KnowledgeGraphMeta, "slug">;
+	return { ...raw, slug };
 }
 
 /**
@@ -51,7 +52,7 @@ export class GraphLoader {
 				continue;
 			}
 
-			const meta = loadGraphMeta(graphJsonPath);
+			const meta = loadGraphMeta(graphJsonPath, entry.name);
 			metas.push(meta);
 			this.files.set(meta.id, {
 				knowledgeGraphId: meta.id,
@@ -60,7 +61,7 @@ export class GraphLoader {
 			});
 		}
 
-		this.graphsMeta = metas;
+		this.graphsMeta = metas.sort((a, b) => a.order - b.order);
 	}
 
 	/**
