@@ -1,47 +1,35 @@
 # ARK Agent CLI
 
 [![arXiv](https://img.shields.io/badge/arXiv-2601.13969-b31b1b.svg)](https://arxiv.org/abs/2601.13969)
-[![Paper](https://img.shields.io/badge/Paper-Adaptive%20Retriever%20of%20Knowledge-blue)](https://arxiv.org/abs/2601.13969)
-[![Main Code](https://img.shields.io/badge/Main%20Code-mims--harvard%2Fark-green)](https://github.com/mims-harvard/ark)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Bun](https://img.shields.io/badge/Runtime-Bun-f9f1e1)](https://bun.sh/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
 
-A Terminal UI (TUI) application for interactive exploration of biomedical knowledge graphs using AI agents. This is the command-line interface for [ARK (Adaptive Retriever of Knowledge)](https://github.com/mims-harvard/ark).
+A terminal-based chat application for exploring knowledge graphs through AI agents. Part of the [ARK (Adaptive Retriever of Knowledge)](https://github.com/mims-harvard/ark) project.
 
 <p align="center">
   <img src="static/ark-cli.png" alt="ARK Agent CLI Demo" width="800">
 </p>
 
-## Overview
+## What's Included
 
-ARK Agent CLI provides a conversational interface to explore biomedical knowledge graphs through specialized AI agents. Each agent has access to a curated knowledge graph and can traverse nodes, find relationships, and answer complex biomedical questions using Claude Opus 4.5.
+ARK Agent CLI automatically discovers any knowledge graph placed in the `data/` directory and creates a dedicated AI agent for it. Out of the box, it ships with three biomedical knowledge graphs:
 
-### Key Features
+| Graph | Description |
+|-------|-------------|
+| **PrimeKG** | A precision medicine-oriented knowledge graph that provides a holistic view of diseases, drugs, genes, and their relationships. |
+| **AfriMedKG** | A knowledge graph built from the AfriMed-QA pan-African, multi-specialty medical Q&A benchmark. |
+| **OptimusKG** | A modern multimodal knowledge graph for precision medicine with rich metadata. |
 
-- **Interactive Chat Interface**: Natural language conversations with AI agents
-- **Multiple Specialized Agents**: Choose from agents specialized in different biomedical domains
-- **Knowledge Graph Exploration**: Search nodes, traverse relationships, and discover paths
-- **Rich Terminal UI**: Built with `@ai-tui/core` for a modern terminal experience
-- **Custom Tool Renderers**: Visualize knowledge graph data directly in the terminal
+You can add your own graphs, biomedical or otherwise, without changing any code. See [Adding Your Own Knowledge Graph](#adding-your-own-knowledge-graph) below.
 
-## Knowledge Graphs
-
-| Agent | Knowledge Graph | Description | Use Cases |
-|-------|-----------------|-------------|-----------|
-| **PrimeKG** | Precision Medicine KG | Holistic view of diseases with comprehensive drug, gene, and disease relationships | Drug repurposing, disease mechanisms, precision medicine research |
-| **AfriMedKG** | Pan-African Medical KG | Built from AfriMed-QA multi-specialty medical Q&A benchmark | African medical knowledge, multi-specialty medical queries |
-| **OptimusKG** | Multimodal Precision Medicine KG | Modern multimodal KG with rich metadata | Advanced precision medicine, multimodal biomedical queries |
-
-## Installation
+## Getting Started
 
 ### Prerequisites
 
 - [Bun](https://bun.sh/) >= 1.0
-- [Node.js](https://nodejs.org/) >= 18 (for pnpm)
+- [Node.js](https://nodejs.org/) >= 18
 - [pnpm](https://pnpm.io/) >= 10
 
-### Setup
+### Installation
 
 1. **Clone the repository**:
 
@@ -56,138 +44,123 @@ ARK Agent CLI provides a conversational interface to explore biomedical knowledg
    pnpm install
    ```
 
-3. **Configure environment variables**:
+3. **Configure your API key**:
 
    ```bash
    cp .env.example .env
    ```
 
-   Edit `.env` with your credentials:
+   Open `.env` and add your API key. The CLI currently uses [Anthropic](https://www.anthropic.com/) as its LLM provider:
 
    ```env
-   ANTHROPIC_API_KEY=your_anthropic_api_key
+   ANTHROPIC_API_KEY=your_key_here
    ```
 
-4. **Run the application**:
+4. **Start the CLI**:
 
-```bash
-pnpm cli
-```
+   ```bash
+   pnpm cli
+   ```
 
-## Usage
+   You can also compile it into a standalone binary:
 
-### Starting a Session
+   ```bash
+   pnpm build
+   ./build/ark-agent-cli
+   ```
 
-Launch the CLI in development mode with hot reloading:
+### Quick Example
 
-```bash
-pnpm cli
-```
-
-Or build and run the compiled binary:
-
-```bash
-pnpm build
-./build/ark-agent-cli
-```
-
-### Selecting an Agent
-
-Upon startup, you'll see three specialized agents:
-
-- **PrimeKG** (orange) - Precision medicine queries
-- **AfriMedKG** (blue) - Pan-African medical knowledge
-- **OptimusKG** (green) - Multimodal precision medicine
-
-Use arrow keys or click to select an agent, then start typing your question.
-
-### Example Queries
-
-#### Finding Genes and Proteins
-
-```
-What are the neighbors of the A2M gene/protein?
-```
-
-#### Disease-Gene Relationships
+Once the CLI is running, select an agent and ask a question in plain language:
 
 ```
 What genes are associated with Alzheimer's disease?
 ```
 
-#### Drug Interactions
-
-```
-What drugs interact with the BRCA1 gene?
-```
-
-#### Complex Multi-Hop Queries
-
-```
-What is the name of the gene or protein that promotes cellular aging, 
-is associated with cutaneous T-cell lymphoma, and is involved in 
-mRNA binding for gene silencing post-transcription?
-```
-
-#### Pathway Discovery
-
 ```
 Find the relationship between metformin and breast cancer.
 ```
 
-#### Regional Medical Knowledge (AfriMedKG)
+The agent will search the knowledge graph, traverse relationships, and synthesize an answer while citing the specific nodes and edges it used.
+
+## Adding Your Own Knowledge Graph
+
+Adding a new graph takes four steps and requires **no code changes**.
+
+### Step 1: Create a folder
+
+Create a new directory inside `data/` with a short, lowercase name (this becomes the agent's internal ID):
 
 ```
-What are the common symptoms of malaria according to African medical practice?
+data/mykg/
+```
+
+### Step 2: Write `graph.json`
+
+Create a `graph.json` file inside your folder with the following fields:
+
+```json
+{
+  "id": 4,
+  "name": "MyGraph",
+  "description": "A custom knowledge graph for my research domain.",
+  "color": "#e06c75",
+  "order": 4
+}
+```
+
+Here's what each field does:
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `id` | `number` | Yes | A unique numeric identifier. Pick any number not already used by another graph. |
+| `name` | `string` | Yes | The display name shown in the UI when selecting an agent. |
+| `description` | `string` | Yes | A short description of the graph. The AI agent uses this to understand when the graph is relevant. |
+| `color` | `string` | Yes | A hex color for the agent in the UI (e.g. `"#e06c75"`). |
+| `order` | `number` | Yes | Controls display order in the agent list. Lower numbers appear first. |
+
+### Step 3: Prepare your parquet files
+
+Place two [Apache Parquet](https://parquet.apache.org/) files in the same folder:
+
+**`nodes.parquet`** (one row per node):
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | VARCHAR | Unique node identifier |
+| `name` | VARCHAR | Human-readable name |
+| `type` | VARCHAR | Node type or category (e.g. `"gene"`, `"disease"`, `"drug"`) |
+| `properties` | VARCHAR | A JSON string with any additional properties |
+
+**`edges.parquet`** (one row per edge):
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `from` | VARCHAR | Source node ID |
+| `to` | VARCHAR | Target node ID |
+| `type` | VARCHAR | Relationship type (e.g. `"interacts_with"`, `"treats"`) |
+| `properties` | VARCHAR | A JSON string with any additional properties |
+
+### Step 4: Run the CLI
+
+That's it. Start (or restart) the CLI and your new agent will appear automatically:
+
+```bash
+pnpm cli
 ```
 
 ## Available Tools
 
-The AI agents have access to the following knowledge graph exploration tools:
+Each AI agent has access to the following tools for exploring its knowledge graph. You don't call these directly. The agent decides which tools to use based on your question.
 
 | Tool | Description | Parameters |
 |------|-------------|------------|
 | `listAvailableGraphs` | List all available knowledge graphs | None |
-| `findNodesByName` | Search nodes by name (partial match) | `name: string` |
-| `getNodeDetails` | Get detailed information about a node | `nodeId: string` |
-| `getNeighborsByNodeId` | Get all neighbors of a node | `nodeId: string`, `edgeType?: string` |
-| `searchInSurroundings` | Search within 1-2 hops with filters | `nodeId`, `query?`, `nodeType?`, `edgeType?`, `k?: "1"\|"2"` |
-| `findPaths` | Find all length-2 paths between nodes | `sourceNodeId`, `destinationNodeId` |
-
-## Architecture
-
-```
-ark-agent-cli/
-├── src/
-│   ├── index.tsx          # Main entry point, agent configuration
-│   ├── prompts.ts         # Agent system prompts
-│   ├── parquet-tools/
-│   │   ├── index.ts       # Graph loader, DuckDB connection management
-│   │   ├── queries.ts     # Query functions (DuckDB SQL on parquet files)
-│   │   ├── tools.ts       # AI tool definitions (Vercel AI SDK)
-│   │   └── types.ts       # Node, Edge, KnowledgeGraphMeta types
-│   └── tool-renderers/
-│       └── get-node-details-tool.tsx  # Custom tool visualization
-├── data/
-│   ├── primekg/           # PrimeKG graph data
-│   ├── afrimedkg/         # AfriMedKG graph data
-│   └── optimuskg/         # OptimusKG graph data
-├── scripts/
-│   ├── export-data.ts     # Export from PostgreSQL to parquet
-│   └── smoke-test-parquet.ts  # Query smoke tests
-├── build/                 # Compiled binary output
-├── package.json
-└── tsconfig.json
-```
-
-### Technology Stack
-
-- **Runtime**: [Bun](https://bun.sh/) - Fast JavaScript runtime
-- **Language**: TypeScript 5.x
-- **UI Framework**: [React 19](https://react.dev/) with [@ai-tui/core](https://www.npmjs.com/package/@ai-tui/core)
-- **LLM Integration**: [Vercel AI SDK](https://sdk.vercel.ai/) with Anthropic Claude Opus 4.5
-- **Data**: Local parquet files queried via [DuckDB](https://duckdb.org/) (`@duckdb/node-api`)
-- **Validation**: [Zod](https://zod.dev/)
+| `findNodesByName` | Search for nodes by name (partial match) | `name: string` |
+| `getNodeDetails` | Get detailed information about a specific node | `nodeId: string` |
+| `getNeighborsByNodeId` | Get all neighbors of a node, optionally filtered by edge type | `nodeId: string`, `edgeType?: string` |
+| `searchInSurroundings` | Search within 1 or 2 hops of a node with optional filters | `nodeId`, `query?`, `nodeType?`, `edgeType?`, `k?: "1"\|"2"` |
+| `findPaths` | Find all length-2 paths between two nodes | `sourceNodeId`, `destinationNodeId` |
 
 ## Development
 
@@ -196,26 +169,22 @@ ark-agent-cli/
 | Script | Description |
 |--------|-------------|
 | `pnpm cli` | Run in development mode with hot reload |
-| `pnpm build` | Compile to standalone binary |
+| `pnpm build` | Compile to a standalone binary |
 | `pnpm check-types` | Run TypeScript type checking |
 | `pnpm clean` | Remove build artifacts |
 
-### Adding a New Knowledge Graph
-
-1. Create a directory under `data/` with the graph name (e.g. `data/newkg/`)
-2. Add three files:
-   - `graph.json` — metadata: `{"id": 4, "name": "NewKG", "description": "..."}`
-   - `nodes.parquet` — columns: `id` (VARCHAR), `name` (VARCHAR), `type` (VARCHAR), `properties` (VARCHAR)
-   - `edges.parquet` — columns: `from` (VARCHAR), `to` (VARCHAR), `type` (VARCHAR), `properties` (VARCHAR)
-3. Create a new agent in `src/index.tsx`:
-
-   ```typescript
-   createGraphAgent("newkg", "NewKG", 4, "#hexcolor")
-   ```
-
 ### Custom Tool Renderers
 
-Tool renderers provide rich visualization of tool outputs. See `src/tool-renderers/get-node-details-tool.tsx` for an example implementation.
+Tool renderers provide rich visualization of tool outputs in the terminal. See `src/tool-renderers/get-node-details-tool.tsx` for an example of how to build a custom renderer for a graph tool.
+
+### Technology Stack
+
+- **Runtime**: [Bun](https://bun.sh/)
+- **Language**: TypeScript
+- **UI**: [React 19](https://react.dev/) with [@ai-tui/core](https://www.npmjs.com/package/@ai-tui/core)
+- **LLM**: [Vercel AI SDK](https://sdk.vercel.ai/) (currently configured for Anthropic Claude)
+- **Data**: Local parquet files queried via [DuckDB](https://duckdb.org/)
+- **Validation**: [Zod](https://zod.dev/)
 
 ## Citation
 
@@ -235,13 +204,13 @@ If you use ARK in your research, please cite our paper:
 
 ## Related Projects
 
-- [ARK (Main Repository)](https://github.com/mims-harvard/ark) - Core ARK implementation and benchmarks
-- [PrimeKG](https://github.com/mims-harvard/PrimeKG) - Precision Medicine Knowledge Graph
-- [Zitnik Lab](https://zitniklab.hms.harvard.edu/) - Harvard Medical School research group
+- [ARK (Main Repository)](https://github.com/mims-harvard/ark) — Core ARK implementation and benchmarks
+- [PrimeKG](https://github.com/mims-harvard/PrimeKG) — Precision Medicine Knowledge Graph
+- [Zitnik Lab](https://zitniklab.hms.harvard.edu/) — Harvard Medical School research group
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
 ---
 
