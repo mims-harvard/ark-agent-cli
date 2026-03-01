@@ -1,15 +1,10 @@
 import { tool } from "ai";
 import { z } from "zod";
 
-import {
-	findPaths as findPathsQuery,
-	getEdgesBetweenNodes,
-	getKHopNeighborIds,
-	getNeighbors,
-	getNodesByIds,
-	searchNodesByName,
-} from "./db/queries.ts";
-import type { KnowledgeGraph, Node } from "./db/schema.ts";
+import type { createQueries } from "./queries.ts";
+import type { KnowledgeGraphMeta } from "./types.ts";
+
+type Queries = ReturnType<typeof createQueries>;
 
 export type SearchSurroundingsNeighbor = {
 	id: string;
@@ -57,7 +52,8 @@ export type FindPathsResponse = {
 };
 
 export const makeSearchInSurroundingsTool = (
-	knowledgeGraphIds: KnowledgeGraph["id"][],
+	knowledgeGraphIds: number[],
+	queries: Queries,
 ) => {
 	const STOPWORDS = [
 		"the",
@@ -146,7 +142,9 @@ export const makeSearchInSurroundingsTool = (
 				throw new Error("Filtering by edge type is not supported when k=2");
 			}
 
-			const mainNodes = await getNodesByIds(knowledgeGraphIds, [nodeId]);
+			const mainNodes = await queries.getNodesByIds(knowledgeGraphIds, [
+				nodeId,
+			]);
 			if (!mainNodes || mainNodes.length === 0) {
 				throw new Error(`Node with id ${nodeId} not found.`);
 			}
@@ -155,13 +153,16 @@ export const makeSearchInSurroundingsTool = (
 				throw new Error(`Node with id ${nodeId} not found.`);
 			}
 
-			const neighborIds = await getKHopNeighborIds(
+			const neighborIds = await queries.getKHopNeighborIds(
 				knowledgeGraphIds,
 				nodeId,
 				hops,
 				edgeType,
 			);
-			let candidates = await getNodesByIds(knowledgeGraphIds, neighborIds);
+			let candidates = await queries.getNodesByIds(
+				knowledgeGraphIds,
+				neighborIds,
+			);
 
 			if (nodeType) {
 				candidates = candidates.filter((c) => c.type === nodeType);
@@ -211,7 +212,7 @@ export const makeSearchInSurroundingsTool = (
 			if (hops === 1) {
 				const candidatesWithEdges = await Promise.all(
 					candidatesWithQuery.map(async (candidate) => {
-						const edges = await getEdgesBetweenNodes(
+						const edges = await queries.getEdgesBetweenNodes(
 							knowledgeGraphIds,
 							nodeId,
 							candidate.id,
@@ -253,7 +254,8 @@ export const makeSearchInSurroundingsTool = (
 };
 
 export const makeFindNodesByNameTool = (
-	knowledgeGraphIds: KnowledgeGraph["id"][],
+	knowledgeGraphIds: number[],
+	queries: Queries,
 ) =>
 	tool({
 		description: "Find nodes in the knowledge graph by their name.",
@@ -261,7 +263,7 @@ export const makeFindNodesByNameTool = (
 			name: z.string().describe("The name of the node to search for."),
 		}),
 		execute: async ({ name }) => {
-			const nodes = await searchNodesByName(name, knowledgeGraphIds);
+			const nodes = await queries.searchNodesByName(name, knowledgeGraphIds);
 			return nodes.map(
 				({ type, name: nodeName, id, knowledgeGraphId, properties }) => ({
 					type,
@@ -275,7 +277,8 @@ export const makeFindNodesByNameTool = (
 	});
 
 export const makeGetNodeDetailsTool = (
-	knowledgeGraphIds: KnowledgeGraph["id"][],
+	knowledgeGraphIds: number[],
+	queries: Queries,
 ) =>
 	tool({
 		description: "Get the details of a specific node by its ID.",
@@ -283,7 +286,7 @@ export const makeGetNodeDetailsTool = (
 			nodeId: z.string().describe("The ID of the node to get details for."),
 		}),
 		execute: async ({ nodeId }) => {
-			const nodes = await getNodesByIds(knowledgeGraphIds, [nodeId]);
+			const nodes = await queries.getNodesByIds(knowledgeGraphIds, [nodeId]);
 			return nodes.map((node) => ({
 				type: node.type,
 				name: node.name,
@@ -295,7 +298,8 @@ export const makeGetNodeDetailsTool = (
 	});
 
 export const makeGetNeighborsByNodeIdTool = (
-	knowledgeGraphIds: KnowledgeGraph["id"][],
+	knowledgeGraphIds: number[],
+	queries: Queries,
 ) =>
 	tool({
 		description: "Get the neighbors of a specific node by its ID.",
@@ -304,66 +308,65 @@ export const makeGetNeighborsByNodeIdTool = (
 			edgeType: z.string().optional().describe("Optional filter by edge type."),
 		}),
 		execute: async ({ nodeId, edgeType }) => {
-			const neighbors = await getNeighbors(knowledgeGraphIds, nodeId, edgeType);
+			const neighbors = await queries.getNeighbors(
+				knowledgeGraphIds,
+				nodeId,
+				edgeType,
+			);
 			return neighbors;
 		},
 	});
 
 export const makeListAvailableGraphs = (
-	knowledgeGraphIds: KnowledgeGraph["id"][],
+	knowledgeGraphIds: number[],
+	graphsMeta: KnowledgeGraphMeta[],
 ) =>
 	tool({
 		description: "List all available knowledge graphs for querying.",
 		inputSchema: z.object({}),
 		execute: () => {
-			// TODO:(iarango -> lvvittor) Replace with a database request
-			const KNOWLEDGE_GRAPHS = [
-				{
-					id: "1",
-					name: "PrimeKG",
-					category: "Biomedical",
-					shortDescription: "Holistic precision medicine.",
-					description:
-						"A precision medicine-oriented knowledge graph that provides a holistic view of diseases.",
-				},
-				{
-					id: "3",
-					name: "OptimusKG",
-					category: "Biomedical",
-					shortDescription: "Multimodal precision medicine.",
-					description:
-						"OptimusKG is a modern multimodal knowledge graph for precision medicine.",
-				},
-				{
-					id: "2",
-					name: "AfriMedKG",
-					category: "Regional",
-					shortDescription: "Pan-african knowledge.",
-					description:
-						"A knowledge graph constructed based on the multiple-choice questions of AfriMed-QA. AfriMed-QA is a pan-african, multi-specialty, medical question-answering benchmark dataset.",
-				},
-			] as const;
-
-			// TODO:(iarango -> lvvittor) Also include node and edge types
-
-			const availableGraphs = knowledgeGraphIds.map((id) =>
-				KNOWLEDGE_GRAPHS.find((graph) => graph.id === String(id)),
-			);
-
-			return availableGraphs;
+			const kgSet = new Set(knowledgeGraphIds);
+			return graphsMeta
+				.filter((g) => kgSet.has(g.id))
+				.map((g) => ({
+					id: String(g.id),
+					name: g.name,
+					description: g.description,
+					category: g.category,
+					shortDescription: g.shortDescription,
+				}));
 		},
 	});
 
-export const makeGraphTools = (knowledgeGraphIds: KnowledgeGraph["id"][]) => {
-	const listAvailableGraphs = makeListAvailableGraphs(knowledgeGraphIds);
+export const makeGraphTools = (
+	knowledgeGraphIds: number[],
+	queries: Queries,
+	graphsMeta: KnowledgeGraphMeta[],
+) => {
+	const listAvailableGraphs = makeListAvailableGraphs(
+		knowledgeGraphIds,
+		graphsMeta,
+	);
 	const queryingTools =
 		knowledgeGraphIds.length === 0
 			? {}
 			: {
-					findNodesByName: makeFindNodesByNameTool(knowledgeGraphIds),
-					getNodeDetails: makeGetNodeDetailsTool(knowledgeGraphIds),
-					getNeighborsByNodeId: makeGetNeighborsByNodeIdTool(knowledgeGraphIds),
-					searchInSurroundings: makeSearchInSurroundingsTool(knowledgeGraphIds),
+					findNodesByName: makeFindNodesByNameTool(
+						knowledgeGraphIds,
+						queries,
+					),
+					getNodeDetails: makeGetNodeDetailsTool(
+						knowledgeGraphIds,
+						queries,
+					),
+					getNeighborsByNodeId: makeGetNeighborsByNodeIdTool(
+						knowledgeGraphIds,
+						queries,
+					),
+					searchInSurroundings: makeSearchInSurroundingsTool(
+						knowledgeGraphIds,
+						queries,
+					),
 				};
 	return {
 		listAvailableGraphs,

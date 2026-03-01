@@ -9,18 +9,19 @@
 		"cli": "bun run --watch src/index.tsx",
 		"build": "pnpm clean && bun build --compile src/index.tsx --outfile ./build/ark-agent-cli && cp .env ./build/.env",
 		"check-types": "tsc --noEmit",
-		"clean": "rm -rf build"
+		"clean": "rm -rf build",
+		"export-data": "bun run scripts/export-data.ts"
 	},
 	"dependencies": {
-		"@ai-tui/core": "^0.1.1",
 		"@ai-sdk/anthropic": "^3.0.17",
 		"@ai-sdk/react": "^3.0.41",
+		"@ai-tui/core": "^0.1.1",
+		"@duckdb/node-api": "1.4.4-r.1",
 		"@opentui/core": "^0.1.72",
 		"@opentui/react": "^0.1.72",
 		"@t3-oss/env-core": "^0.13.1",
 		"ai": "^6.0.42",
-		"drizzle-orm": "^0.45.1",
-		"postgres": "^3.4.8",
+		"hyparquet": "^1.25.1",
 		"react": "^19.2.3",
 		"zod": "^4.1.13"
 	},

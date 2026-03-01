@@ -9,20 +9,24 @@ import {
 import { createEnv } from "@t3-oss/env-core";
 import type { ChatTransport, ToolSet, UIMessage } from "ai";
 import { DirectChatTransport, stepCountIs, ToolLoopAgent } from "ai";
+import { join } from "node:path";
 import { z } from "zod";
 
+import { GraphLoader, makeParquetGraphTools } from "./parquet-tools/index.ts";
 import { graphAgentPrompt, regularPrompt } from "./prompts.ts";
 import { GetNodeDetailsTool } from "./tool-renderers/index.ts";
-import { makeGraphTools } from "./tools.ts";
 
 export const env = createEnv({
 	server: {
 		ANTHROPIC_API_KEY: z.string().min(1),
-		POSTGRES_URL: z.string().min(1),
 	},
 	runtimeEnv: process.env,
 	emptyStringAsUndefined: true,
 });
+
+// Discover graph metadata instantly; parquet data loads lazily per agent
+const DATA_DIR = join(import.meta.dir, "..", "data");
+const loader = new GraphLoader(DATA_DIR);
 
 const anthropic = createAnthropic({
 	apiKey: env.ANTHROPIC_API_KEY,
@@ -50,9 +54,11 @@ const createGraphAgent = (
 		model: { providerName: "Anthropic", name: "Claude Opus 4.5" },
 		color,
 		toolComponents: graphToolComponents,
-		// biome-ignore lint/suspicious/useAwait: Must return Promise per AgentCreateTransport type
 		createTransport: async ({ transportOptions }) => {
-			const graphTools = makeGraphTools([knowledgeGraphId]) as ToolSet;
+			const graphTools = (await makeParquetGraphTools(
+				[knowledgeGraphId],
+				loader,
+			)) as ToolSet;
 
 			const agent = new ToolLoopAgent({
 				model: anthropic("claude-opus-4-5"),

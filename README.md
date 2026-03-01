@@ -40,7 +40,6 @@ ARK Agent CLI provides a conversational interface to explore biomedical knowledg
 - [Bun](https://bun.sh/) >= 1.0
 - [Node.js](https://nodejs.org/) >= 18 (for pnpm)
 - [pnpm](https://pnpm.io/) >= 10
-- PostgreSQL database with knowledge graph data
 
 ### Setup
 
@@ -67,31 +66,9 @@ ARK Agent CLI provides a conversational interface to explore biomedical knowledg
 
    ```env
    ANTHROPIC_API_KEY=your_anthropic_api_key
-   POSTGRES_URL=postgresql://user:password@host:port/database
-   # If you run postgres locally you might not need a password
    ```
 
-4. **Set up the database**:
-
-   Download and restore the knowledge graph data:
-
-   ```bash
-   # Download the database dump from Google Drive (~7.2GB)
-   curl -L -o db-dump.sql "https://drive.usercontent.google.com/download?id=1BWxAFa11hODWTl5pk_2KUGMnhBP1Kiu_&export=download&confirm=t"
-   
-   # Alternatively, download manually from:
-   # https://drive.google.com/file/d/1BWxAFa11hODWTl5pk_2KUGMnhBP1Kiu_/view?usp=sharing
-   
-   psql -d postgres -f db-dump.sql
-   ```
-
-   This creates the database and restores the data. Make sure the database name in your `POSTGRES_URL` (the part after the last `/`) matches the database you restored into. For example, if you used `psql -d postgres`, your `POSTGRES_URL` should end with `/postgres`.
-
-
-   Supabase-specific roles, extensions, and permissions included in the dump may fail to apply in a local PostgreSQL setup.
-   These errors can be safely ignored and **do not affect ARK Agent CLI functionality**.
-
-5. **Run the application**:
+4. **Run the application**:
 
 ```bash
 pnpm cli
@@ -184,13 +161,20 @@ ark-agent-cli/
 ├── src/
 │   ├── index.tsx          # Main entry point, agent configuration
 │   ├── prompts.ts         # Agent system prompts
-│   ├── tools.ts           # Knowledge graph tool definitions
-│   ├── db/
-│   │   ├── db.ts          # Database connection
-│   │   ├── schema.ts      # Drizzle ORM schema
-│   │   └── queries.ts     # Database query functions
+│   ├── parquet-tools/
+│   │   ├── index.ts       # Graph loader, DuckDB connection management
+│   │   ├── queries.ts     # Query functions (DuckDB SQL on parquet files)
+│   │   ├── tools.ts       # AI tool definitions (Vercel AI SDK)
+│   │   └── types.ts       # Node, Edge, KnowledgeGraphMeta types
 │   └── tool-renderers/
 │       └── get-node-details-tool.tsx  # Custom tool visualization
+├── data/
+│   ├── primekg/           # PrimeKG graph data
+│   ├── afrimedkg/         # AfriMedKG graph data
+│   └── optimuskg/         # OptimusKG graph data
+├── scripts/
+│   ├── export-data.ts     # Export from PostgreSQL to parquet
+│   └── smoke-test-parquet.ts  # Query smoke tests
 ├── build/                 # Compiled binary output
 ├── package.json
 └── tsconfig.json
@@ -202,7 +186,7 @@ ark-agent-cli/
 - **Language**: TypeScript 5.x
 - **UI Framework**: [React 19](https://react.dev/) with [@ai-tui/core](https://www.npmjs.com/package/@ai-tui/core)
 - **LLM Integration**: [Vercel AI SDK](https://sdk.vercel.ai/) with Anthropic Claude Opus 4.5
-- **Database**: PostgreSQL with [Drizzle ORM](https://orm.drizzle.team/)
+- **Data**: Local parquet files queried via [DuckDB](https://duckdb.org/) (`@duckdb/node-api`)
 - **Validation**: [Zod](https://zod.dev/)
 
 ## Development
@@ -218,51 +202,20 @@ ark-agent-cli/
 
 ### Adding a New Knowledge Graph
 
-1. Add the graph data to PostgreSQL using the schema in `src/db/schema.ts`
-2. Create a new agent in `src/index.tsx`:
+1. Create a directory under `data/` with the graph name (e.g. `data/newkg/`)
+2. Add three files:
+   - `graph.json` — metadata: `{"id": 4, "name": "NewKG", "description": "..."}`
+   - `nodes.parquet` — columns: `id` (VARCHAR), `name` (VARCHAR), `type` (VARCHAR), `properties` (VARCHAR)
+   - `edges.parquet` — columns: `from` (VARCHAR), `to` (VARCHAR), `type` (VARCHAR), `properties` (VARCHAR)
+3. Create a new agent in `src/index.tsx`:
 
    ```typescript
    createGraphAgent("newkg", "NewKG", 4, "#hexcolor")
    ```
 
-3. Update the `KNOWLEDGE_GRAPHS` constant in `src/tools.ts`
-
 ### Custom Tool Renderers
 
 Tool renderers provide rich visualization of tool outputs. See `src/tool-renderers/get-node-details-tool.tsx` for an example implementation.
-
-## Database Schema
-
-The application uses three main tables:
-
-```sql
--- Knowledge graphs metadata
-CREATE TABLE knowledge_graph (
-  id BIGSERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  description TEXT NOT NULL
-);
-
--- Nodes in the knowledge graphs
-CREATE TABLE node (
-  knowledgeGraphId BIGINT REFERENCES knowledge_graph(id),
-  id TEXT NOT NULL,
-  name TEXT,
-  type VARCHAR(256),
-  properties TEXT,
-  PRIMARY KEY (knowledgeGraphId, id)
-);
-
--- Edges connecting nodes
-CREATE TABLE edge (
-  knowledgeGraphId BIGINT REFERENCES knowledge_graph(id),
-  "from" TEXT NOT NULL,
-  "to" TEXT NOT NULL,
-  type VARCHAR(256),
-  properties TEXT,
-  PRIMARY KEY (knowledgeGraphId, "from", "to", type)
-);
-```
 
 ## Citation
 
