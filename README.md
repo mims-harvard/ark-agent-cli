@@ -127,19 +127,19 @@ Place two [Apache Parquet](https://parquet.apache.org/) files in the same folder
 
 | Column | Type | Description |
 |--------|------|-------------|
-| `id` | VARCHAR | Unique node identifier |
-| `name` | VARCHAR | Human-readable name |
-| `type` | VARCHAR | Node type or category (e.g. `"gene"`, `"disease"`, `"drug"`) |
-| `properties` | VARCHAR | A JSON string with any additional properties |
+| `id` | string | Unique node identifier |
+| `name` | string | Human-readable name |
+| `type` | string | Node type or category (e.g. `"gene"`, `"disease"`, `"drug"`) |
+| `properties` | string | A JSON string with any additional properties |
 
 **`edges.parquet`** (one row per edge):
 
 | Column | Type | Description |
 |--------|------|-------------|
-| `from` | VARCHAR | Source node ID |
-| `to` | VARCHAR | Target node ID |
-| `type` | VARCHAR | Relationship type (e.g. `"interacts_with"`, `"treats"`) |
-| `properties` | VARCHAR | A JSON string with any additional properties |
+| `from` | string | Source node ID |
+| `to` | string | Target node ID |
+| `type` | string | Relationship type (e.g. `"interacts_with"`, `"treats"`) |
+| `properties` | string | A JSON string with any additional properties |
 
 ### Step 4: Run the CLI
 
