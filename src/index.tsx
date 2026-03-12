@@ -12,7 +12,6 @@ import { DirectChatTransport, stepCountIs, ToolLoopAgent } from "ai";
 import { join } from "node:path";
 import { z } from "zod";
 
-import { FeedbackChatTransport, FeedbackForm } from "./feedback/index.ts";
 import { GraphLoader, makeParquetGraphTools } from "./parquet-tools/index.ts";
 import { graphAgentPrompt, regularPrompt } from "./prompts.ts";
 import { GetNodeDetailsTool } from "./tool-renderers/index.ts";
@@ -63,12 +62,10 @@ const configValue: ConfigInput = {
 						stopWhen: stepCountIs(50),
 					});
 
-				const inner = new DirectChatTransport({
-					agent,
-					...transportOptions,
-				}) as ChatTransport<UIMessage>;
-
-				return new FeedbackChatTransport(inner);
+					return new DirectChatTransport({
+						agent,
+						...transportOptions,
+					}) as ChatTransport<UIMessage>;
 				},
 			}),
 	) as ConfigInput["agents"],
@@ -83,9 +80,6 @@ const configValue: ConfigInput = {
 		],
 	},
 };
-
-// Register the feedback form so the patched /feedback slash command can find it
-globalThis.__arkFeedbackForm = FeedbackForm;
 
 const tui = new TerminalUI(configValue);
 await tui.run();
