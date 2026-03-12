@@ -1,2 +1,5 @@
 onlyBuiltDependencies:
   - duckdb
+
+patchedDependencies:
+  '@ai-tui/core': patches/@ai-tui__core.patch

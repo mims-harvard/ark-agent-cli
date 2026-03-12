@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@ai-tui/core':
+    hash: 072294c7c1bb579a442db0b42cf944064d821181eda1fc384571f4a20c053ace
+    path: patches/@ai-tui__core.patch
+
 importers:
 
   .:
@@ -16,7 +21,7 @@ importers:
         version: 3.0.70(react@19.2.4)(zod@4.3.6)
       '@ai-tui/core':
         specifier: ^0.1.1
-        version: 0.1.1(@ai-sdk/react@3.0.70(react@19.2.4)(zod@4.3.6))(@opentui/core@0.1.77(stage-js@1.0.0-alpha.17)(typescript@5.9.3)(web-tree-sitter@0.25.10))(@opentui/react@0.1.77(react-devtools-core@7.0.1)(react@19.2.4)(stage-js@1.0.0-alpha.17)(typescript@5.9.3)(web-tree-sitter@0.25.10)(ws@8.19.0))(ai@6.0.68(zod@4.3.6))(react@19.2.4)(typescript@5.9.3)
+        version: 0.1.1(patch_hash=072294c7c1bb579a442db0b42cf944064d821181eda1fc384571f4a20c053ace)(@ai-sdk/react@3.0.70(react@19.2.4)(zod@4.3.6))(@opentui/core@0.1.77(stage-js@1.0.0-alpha.17)(typescript@5.9.3)(web-tree-sitter@0.25.10))(@opentui/react@0.1.77(react-devtools-core@7.0.1)(react@19.2.4)(stage-js@1.0.0-alpha.17)(typescript@5.9.3)(web-tree-sitter@0.25.10)(ws@8.19.0))(ai@6.0.68(zod@4.3.6))(react@19.2.4)(typescript@5.9.3)
       '@duckdb/node-api':
         specifier: 1.4.4-r.1
         version: 1.4.4-r.1
@@ -980,7 +985,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  '@ai-tui/core@0.1.1(@ai-sdk/react@3.0.70(react@19.2.4)(zod@4.3.6))(@opentui/core@0.1.77(stage-js@1.0.0-alpha.17)(typescript@5.9.3)(web-tree-sitter@0.25.10))(@opentui/react@0.1.77(react-devtools-core@7.0.1)(react@19.2.4)(stage-js@1.0.0-alpha.17)(typescript@5.9.3)(web-tree-sitter@0.25.10)(ws@8.19.0))(ai@6.0.68(zod@4.3.6))(react@19.2.4)(typescript@5.9.3)':
+  '@ai-tui/core@0.1.1(patch_hash=072294c7c1bb579a442db0b42cf944064d821181eda1fc384571f4a20c053ace)(@ai-sdk/react@3.0.70(react@19.2.4)(zod@4.3.6))(@opentui/core@0.1.77(stage-js@1.0.0-alpha.17)(typescript@5.9.3)(web-tree-sitter@0.25.10))(@opentui/react@0.1.77(react-devtools-core@7.0.1)(react@19.2.4)(stage-js@1.0.0-alpha.17)(typescript@5.9.3)(web-tree-sitter@0.25.10)(ws@8.19.0))(ai@6.0.68(zod@4.3.6))(react@19.2.4)(typescript@5.9.3)':
     dependencies:
       '@ai-sdk/react': 3.0.70(react@19.2.4)(zod@4.3.6)
       '@opentui/core': 0.1.77(stage-js@1.0.0-alpha.17)(typescript@5.9.3)(web-tree-sitter@0.25.10)

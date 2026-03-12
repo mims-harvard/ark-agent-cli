@@ -194,3 +194,5 @@ dist
 
 build
 .opencode/plans
+feedback/
+!src/feedback/
