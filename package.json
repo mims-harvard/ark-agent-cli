@@ -14,6 +14,7 @@
 	},
 	"dependencies": {
 		"@ai-sdk/anthropic": "^3.0.17",
+		"@ai-sdk/azure": "^3.0.0",
 		"@ai-sdk/react": "^3.0.41",
 		"@ai-tui/core": "^0.1.1",
 		"@duckdb/node-api": "1.4.4-r.1",

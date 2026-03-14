@@ -57,11 +57,15 @@ You can add your own graphs, biomedical or otherwise, without changing any code.
    cp .env.example .env
    ```
 
-   Open `.env` and add your API key. The CLI currently uses [Anthropic](https://www.anthropic.com/) as its LLM provider:
+   Open `.env` and add credentials for your chosen LLM provider. The CLI supports [Anthropic](https://www.anthropic.com/) (default) and [Azure OpenAI](https://azure.microsoft.com/products/ai-services/openai-service).
+
+   **Anthropic (default):**
 
    ```env
    ANTHROPIC_API_KEY=your_key_here
    ```
+
+   **Azure OpenAI:** set `LLM_PROVIDER=azure` and your Azure credentials (see [OpenAI (Azure)](#openai-azure) below).
 
 4. **Start the CLI**:
 
@@ -89,6 +93,24 @@ Find the relationship between metformin and breast cancer.
 ```
 
 The agent will search the knowledge graph, traverse relationships, and synthesize an answer while citing the specific nodes and edges it used.
+
+### OpenAI (Azure)
+
+To use Azure OpenAI (e.g. an institutional endpoint like HMS), set in `.env`:
+
+```env
+LLM_PROVIDER=azure
+AZURE_OPENAI_ENDPOINT=https://azure-ai.hms.edu
+AZURE_OPENAI_API_KEY=your_azure_key
+AZURE_OPENAI_API_VERSION=2024-05-01-preview
+AZURE_OPENAI_DEPLOYMENT=gpt-4o-1120
+```
+
+If your server expects paths under `/openai`, use `https://azure-ai.hms.edu/openai` as the endpoint.
+
+### Switching models
+
+The `/models` command is listed in the CLI help. Model selection is currently via environment: set `LLM_PROVIDER` to `anthropic` or `azure` and configure the corresponding API keys, then restart the CLI for the change to take effect. In-app model switching (e.g. choosing a model from a list when you type `/models`) will be supported when the TUI library adds custom command registration and transport invalidation.
 
 ## Adding Your Own Knowledge Graph
 
@@ -189,7 +211,7 @@ Tool renderers provide rich visualization of tool outputs in the terminal. See `
 - **Runtime**: [Bun](https://bun.sh/)
 - **Language**: TypeScript
 - **UI**: [React 19](https://react.dev/) with [@ai-tui/core](https://www.npmjs.com/package/@ai-tui/core)
-- **LLM**: [Vercel AI SDK](https://sdk.vercel.ai/) (currently configured for Anthropic Claude)
+- **LLM**: [Vercel AI SDK](https://sdk.vercel.ai/) (Anthropic Claude or Azure OpenAI via `LLM_PROVIDER`)
 - **Data**: Local parquet files queried via [DuckDB](https://duckdb.org/)
 - **Validation**: [Zod](https://zod.dev/)
 
